@@ -3,7 +3,7 @@ FROM casjaysdevdocker/debian:latest as build
 ENV VERSION="v1.23.3" \
   DEBIAN_FRONTEND=noninteractive
 
-RUN apt update && apt upgrade -yy
+RUN apt update && apt upgrade -yy && apt install unzip -yy
 
 COPY ./bin/. /usr/local/bin/
 COPY ./config/. /config/
