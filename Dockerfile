@@ -1,33 +1,34 @@
-FROM casjaysdevdocker/alpine:latest as source
+FROM casjaysdevdocker/alpine:latest as build
 
-SHELL [ "/bin/bash" ]
 ARG VERSION="v1.23.3"
 
-RUN apk --no-cache add --update \
-  cargo \
-  rust && \
-  mkdir -p /tmp/deno 
+RUN apk --no-cache update
 
-RUN { [ "$(uname -m)" = "amd64" ] || [ "$(uname -m)" = "x86_64" ]; } && \
-  curl -Lsf "https://github.com/denoland/deno/releases/download/${VERSION}/deno-x86_64-unknown-linux-gnu.zip" -o /tmp/deno.zip || true
+RUN { [ "$(uname -m)" = "amd64" ] || [ "$(uname -m)" = "x86_64" ]; } && ARCH=x86_64 && \
+  echo "grabbing ${VERSION}/deno-x86_64-unknown-linux-gnu.zip from deno for $ARCH" && \
+  curl -Lsf "https://github.com/denoland/deno/releases/download/${VERSION}/deno-x86_64-unknown-linux-gnu.zip" -o /tmp/deno-$ARCH.zip &&
+  [ -f "/tmp/deno-$ARCH.zip" ] && \
+  mkdir -p /tmp/deno-$ARCH && \
+  cd /tmp/deno-$ARCH && \
+  unzip /tmp/deno-$ARCH.zip && \
+  mv -fv /tmp/deno-$ARCH/deno /usr/bin/deno && \
+  chmod -Rf 755 /usr/bin/deno && \
+  rm -Rf /tmp/deno-$ARCH.zip /tmp/deno-$ARCH || true
 
-RUN { [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; } && \
-  curl -Lsf https://github.com/LukeChannings/deno-arm64/releases/download/${VERSION}/deno-$(echo $TARGETPLATFORM | tr '/' '-').zip -o /tmp/deno.zip || true
-
-RUN [ -f "/tmp/deno.zip" ] && \
-  cd /tmp/deno && \
-  unzip /tmp/deno.zip && \
-  mv -fv /tmp/deno/deno /usr/bin/deno && \
-  chmod +x /usr/bin/deno && \
-  rm /tmp/deno.zip /tmp/deno
+RUN { [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; } && ARCH=arm64 && \
+  echo "grabbing ${VERSION}/deno-linux-arm64.zip from deno-arm64 for $ARCH" && \
+  curl -Lsf https://github.com/LukeChannings/deno-arm64/releases/download/${VERSION}/deno-linux-arm64.zip -o /tmp/deno-$ARCH.zip && \
+  [ -f "/tmp/deno-$ARCH.zip" ] && \
+  mkdir -p /tmp/deno-$ARCH && \
+  cd /tmp/deno-$ARCH && \
+  unzip /tmp/deno-$ARCH.zip && \
+  mv -fv /tmp/deno-$ARCH/deno /usr/bin/deno && \
+  chmod -Rf 755 /usr/bin/deno && \
+  rm -Rf /tmp/deno-$ARCH.zip /tmp/deno-$ARCH || true
 
 COPY ./bin/. /usr/local/bin/
 COPY ./config/. /config/
 COPY ./data/. /data/
-
-FROM casjaysdevdocker/alpine:latest as build
-
-COPY --from=source /build/target/release/deno /usr/bin/deno
 
 FROM scratch
 
