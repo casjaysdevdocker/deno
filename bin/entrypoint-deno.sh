@@ -55,7 +55,7 @@ case "$1" in
   exit
   ;;
 healthcheck)
-  echo 'OK'
+  type -P deno &>/dev/null && echo 'OK' || exit 1
   ;;
 sh | bash | shell | /bin/sh | /bin/bash)
   shift 1
