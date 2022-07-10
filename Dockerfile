@@ -1,10 +1,16 @@
-FROM casjaysdevdocker/alpine:latest as build
+FROM casjaysdevdocker/alpine:latest as source
 
-RUN apk --no-cache add --update
+RUN apk --no-cache add --update cargo rust && \
+      git clone --recurse-submodules https://github.com/denoland/deno.git /build && \
+      cd /build && cargo cargo clean && cargo build -vv && ./target/release/deno --version || exit 10
 
 COPY ./bin/. /usr/local/bin/
 COPY ./config/. /config/
 COPY ./data/. /data/
+
+FROM casjaysdevdocker/alpine:latest as build
+
+COPY --from=source /build/target/release/deno /usr/bin/deno
 
 FROM scratch
 
