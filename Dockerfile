@@ -1,8 +1,8 @@
-FROM casjaysdevdocker/alpine:latest as build
+FROM casjaysdevdocker/debian:latest as build
 
 ENV VERSION="v1.23.3"
 
-RUN apk --no-cache update
+RUN apt update && apt upgrade -yy
 
 COPY ./bin/. /usr/local/bin/
 COPY ./config/. /config/
