@@ -1,34 +1,15 @@
 FROM casjaysdevdocker/alpine:latest as build
 
-ARG VERSION="v1.23.3"
+ENV VERSION="v1.23.3"
 
 RUN apk --no-cache update
-
-RUN { [ "$(uname -m)" = "amd64" ] || [ "$(uname -m)" = "x86_64" ]; } && ARCH=x86_64 && \
-  echo "grabbing ${VERSION}/deno-x86_64-unknown-linux-gnu.zip from deno for $ARCH" && \
-  curl -Lsf "https://github.com/denoland/deno/releases/download/${VERSION}/deno-x86_64-unknown-linux-gnu.zip" -o /tmp/deno-$ARCH.zip &&
-  [ -f "/tmp/deno-$ARCH.zip" ] && \
-  mkdir -p /tmp/deno-$ARCH && \
-  cd /tmp/deno-$ARCH && \
-  unzip /tmp/deno-$ARCH.zip && \
-  mv -fv /tmp/deno-$ARCH/deno /usr/bin/deno && \
-  chmod -Rf 755 /usr/bin/deno && \
-  rm -Rf /tmp/deno-$ARCH.zip /tmp/deno-$ARCH || true
-
-RUN { [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; } && ARCH=arm64 && \
-  echo "grabbing ${VERSION}/deno-linux-arm64.zip from deno-arm64 for $ARCH" && \
-  curl -Lsf https://github.com/LukeChannings/deno-arm64/releases/download/${VERSION}/deno-linux-arm64.zip -o /tmp/deno-$ARCH.zip && \
-  [ -f "/tmp/deno-$ARCH.zip" ] && \
-  mkdir -p /tmp/deno-$ARCH && \
-  cd /tmp/deno-$ARCH && \
-  unzip /tmp/deno-$ARCH.zip && \
-  mv -fv /tmp/deno-$ARCH/deno /usr/bin/deno && \
-  chmod -Rf 755 /usr/bin/deno && \
-  rm -Rf /tmp/deno-$ARCH.zip /tmp/deno-$ARCH || true
 
 COPY ./bin/. /usr/local/bin/
 COPY ./config/. /config/
 COPY ./data/. /data/
+
+RUN /usr/local/bin/get-deno.sh && \
+  rm -Rf /usr/local/bin/get-deno.sh
 
 FROM scratch
 
