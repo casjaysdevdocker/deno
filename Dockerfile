@@ -5,7 +5,9 @@ ENV VERSION="v1.23.3" \
 
 RUN apt update && \
   apt upgrade -yy && \
-  apt install unzip -yy
+  apt install unzip -yy && \
+  apt clean && \
+  rm -rf /var/lib/apt/lists/*
 
 COPY ./bin/. /usr/local/bin/
 COPY ./config/. /config/
