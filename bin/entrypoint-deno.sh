@@ -57,12 +57,12 @@ case "$1" in
 healthcheck)
   echo 'OK'
   ;;
-bash | shell | sh)
+sh | bash | shell | /bin/sh | /bin/bash)
   shift 1
   __exec_bash "$@"
   ;;
 *)
-  exec deno run --allow-net "${@:-https://deno.land/std/examples/welcome.ts}"
+  deno run --allow-net "${@:-/data/sample.ts}"
   ;;
 esac
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
