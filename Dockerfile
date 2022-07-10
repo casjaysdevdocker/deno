@@ -8,7 +8,8 @@ COPY ./bin/. /usr/local/bin/
 COPY ./config/. /config/
 COPY ./data/. /data/
 
-RUN /usr/local/bin/get-deno.sh && \
+RUN chmod -Rf 755 /usr/local/bin/get-deno.sh && \
+  /usr/local/bin/get-deno.sh && \
   rm -Rf /usr/local/bin/get-deno.sh
 
 FROM scratch
