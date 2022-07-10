@@ -9,12 +9,13 @@ RUN apk --no-cache add --update \
   mkdir -p /tmp/deno 
 
 RUN { [ "$(uname -m)" = "amd64" ] || [ "$(uname -m)" = "x86_64" ]; } && \
-  curl -Lsf "https://github.com/denoland/deno/releases/download/${VERSION}/deno-x86_64-unknown-linux-gnu.zip" -o /tmp/deno.zip
+  curl -Lsf "https://github.com/denoland/deno/releases/download/${VERSION}/deno-x86_64-unknown-linux-gnu.zip" -o /tmp/deno.zip || true
 
 RUN { [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; } && \
-  curl -Lsf https://github.com/LukeChannings/deno-arm64/releases/download/${VERSION}/deno-$(echo $TARGETPLATFORM | tr '/' '-').zip -o /tmp/deno.zip
+  curl -Lsf https://github.com/LukeChannings/deno-arm64/releases/download/${VERSION}/deno-$(echo $TARGETPLATFORM | tr '/' '-').zip -o /tmp/deno.zip || true
 
-RUN cd /tmp/deno && \
+RUN [ -f "/tmp/deno.zip" ] && \
+  cd /tmp/deno && \
   unzip /tmp/deno.zip && \
   mv -fv /tmp/deno/deno /usr/bin/deno && \
   chmod +x /usr/bin/deno && \
