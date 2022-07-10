@@ -46,5 +46,5 @@ EXPOSE 1993
 COPY --from=build /. /
 
 HEALTHCHECK CMD [ "/usr/local/bin/entrypoint-deno.sh", "healthcheck" ]
+
 ENTRYPOINT [ "/usr/local/bin/entrypoint-deno.sh" ]
-CMD [ "/usr/bin/bash", "-l" ]
