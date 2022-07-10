@@ -8,10 +8,10 @@
 # @Copyright         :  Copyright: (c) 2022 Jason Hempstead, Casjays Developments
 # @Created           :  Sunday, Jul 10, 2022 10:05 EDT
 # @File              :  entrypoint-deno.sh
-# @Description       :  
-# @TODO              :  
-# @Other             :  
-# @Resource          :  
+# @Description       :
+# @TODO              :
+# @Other             :
+# @Resource          :
 # @sudo/root         :  no
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 APPNAME="$(basename "$0" 2>/dev/null)"
@@ -47,15 +47,7 @@ if [[ -n "${HOSTNAME}" ]]; then
   echo "127.0.0.1 $HOSTNAME localhost" >/etc/hosts
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-if [[ -n "$CONFIG_DIR" ]] && [[ -d "$CONFIG_DIR" ]]; then
-  for config in $CONFIG_DIR; do
-    if [[ -d "/config/$config" ]]; then
-      cp -Rf "/config/$config/." "/etc/$config/"
-    elif [[ -f "/config/$config" ]]; then
-      cp -Rf "/config/$config" "/etc/$config"
-    fi
-  done
-fi
+[[ -f "/app/.env" ]] && source /app/.env
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 case "$1" in
 --help)
@@ -70,7 +62,7 @@ bash | shell | sh)
   __exec_bash "$@"
   ;;
 *)
-  __exec_bash "$@"
+  exec deno run --allow-net "${@:-https://deno.land/std/examples/welcome.ts}"
   ;;
 esac
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
