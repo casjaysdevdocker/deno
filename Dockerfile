@@ -40,7 +40,7 @@ ENV SHELL="/bin/bash" \
   TZ="${TZ:-America/New_York}"
 
 WORKDIR /app
-VOLUME ["/app","/config","/data"]
+VOLUME ["/app"]
 EXPOSE 1993
 
 COPY --from=build /. /
