@@ -17,51 +17,40 @@
 # Set bash options
 [ -n "$DEBUG" ] && set -x
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-__get_file() {
-  local exitStatus=""
-  if curl -q -LSf "$1" -o "$FILE"; then
-    LATEST_URL=""
-    exitStatus=0
-  elif curl -q -LSf "$1" -o "$FILE"; then
-    exitStatus=0
-  else
-    exitStatus=1
-  fi
-  return ${exitStatus}
-}
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 DENO_VERSION="${DENO_VERSION:-v1.26.1}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [ "$(uname -m)" = "amd64" ] || [ "$(uname -m)" = "x86_64" ]; then
   ARCH="x86_64"
-  BIN_FILE="/usr/bin/deno"
-  FILE="/tmp/deno-$ARCH.zip"
-  TMP_DIR="/tmp/deno-$ARCH/deno"
-  message="grabbing $DENO_VERSION from denoland for $ARCH"
   URL="https://github.com/denoland/deno/releases/download/$DENO_VERSION/deno-$ARCH-unknown-linux-gnu.zip"
-  LATEST_URL="https://github.com/denoland/deno/releases/download/latest/deno-$ARCH-unknown-linux-gnu.zip"
+  BIN_FILE="/usr/bin/deno"
+  TMP_DIR="/tmp/deno-$ARCH"
+  FILE="/tmp/deno-$ARCH.zip"
+  message="grabbing $DENO_VERSION from denoland for $ARCH"
+  err_mess="Failed to download deno from $URL"
 elif [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
   ARCH="arm64"
+  URL="https://github.com/LukeChannings/deno-arm64/releases/download/$DENO_VERSION/deno-linux-$ARCH.zip"
   BIN_FILE="/usr/bin/deno"
+  TMP_DIR="/tmp/deno-$ARCH"
   FILE="/tmp/deno-$ARCH.zip"
   message="grabbing $DENO_VERSION from LukeChannings for $ARCH"
-  URL="https://github.com/LukeChannings/deno-arm64/releases/download/$DENO_VERSION/deno-linux-$ARCH.zip"
-  LATEST_URL="https://github.com/LukeChannings/deno-arm64/releases/latest/download/deno-linux-$ARCH.zip"
+  err_mess="Failed to download deno from $URL"
 else
   echo "Unsupported architecture"
   exit 1
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-if { __get_file "$URL" || __get_file "$LATEST_URL"; } && [ -f "$FILE" ]; then
-  echo "$message"
+echo "$message"
+if curl -q -LSsf -o "$FILE" "$URL"; then
   mkdir -p "$TMP_DIR" && cd "$TMP_DIR" || exit 10
   unzip "$FILE"
   mv -fv "$TMP_DIR" "$BIN_FILE"
   chmod -Rf 755 "$BIN_FILE"
-  rm -Rf "$FILE" "$TMP_DIR"
 else
-  echo "Failed to download deno from ${LATEST_URL:-$URL}"
+  echo "$err_mess"
   exit 2
 fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+rm -Rf "$FILE" "$TMP_DIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 [ -f "$(which "deno")" ] && deno upgrade && exit 0 || exit 10
