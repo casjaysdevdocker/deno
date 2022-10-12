@@ -47,9 +47,9 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 [[ -f "/config/.env" ]] && source /config/.env
 
-if [ -z "$1" ] && [ -z "$(ls -A "" 2>/dev/null)" ]; then
+if [ -z "$1" ] && [ -z "$(ls -A "/data/htdocs/www" 2>/dev/null)" ]; then
   FRESH_INSTALL="true"
-  deno run -A -r https://fresh.deno "/data/"
+  deno run -A -r https://fresh.deno "/data/htdocs/www"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 case "$1" in
@@ -67,13 +67,13 @@ sh | bash | shell | /bin/sh | /bin/bash)
 
 deno)
   shift 1
-   deno run --allow-net "${@:-/data/sample.ts}"
+   deno run --allow-net "${@:-/data/htdocs/www/sample.ts}"
   ;;
 *)
   if [ "$FRESH_INSTALL" = "true" ]; then
     deno --allow-all task start
   else
-    deno run --watch --allow-all "${@:-/data/sample.ts}"
+    deno run --watch --allow-all "${@:-/data/htdocs/www/sample.ts}"
   fi
   ;;
 esac

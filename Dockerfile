@@ -1,22 +1,34 @@
 #FROM casjaysdevdocker/debian:latest as build
 FROM casjaysdevdocker/alpine:latest AS build
 
-ENV DENO_VERSION="v1.26.1" \
-  DEBIAN_FRONTEND=noninteractive
+ARG alpine_version="v3.16" \
+  TIMEZONE="America/New_York" \
+  IMAGE_NAME="alpine" \
+  LICENSE="MIT" \
+  PORTS="1-65535"
 
-RUN apt update && \
-  apt upgrade -yy && \
-  apt install unzip -yy && \
-  apt clean && \
-  rm -rf /var/lib/apt/lists/*
+ENV TZ="$TIMEZONE" \
+  SHELL="/bin/bash" \
+  ENV="$HOME/.bashrc" \
+  TERM="xterm-256color" \
+  HOSTNAME="${HOSTNAME:-casjaysdev-$IMAGE_NAME}" \
+  DENO_VERSION="v1.26.1"
+
+RUN set -ex; \
+  rm -Rf "/etc/apk/repositories"; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/$alpine_version/main" >> "/etc/apk/repositories"; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/$alpine_version/community" >> "/etc/apk/repositories"; \
+  if [ "$alpine_version" = "edge" ]; then echo "http://dl-cdn.alpinelinux.org/alpine/$alpine_version/testing" >> "/etc/apk/repositories" ; fi ; \
+  apk update --update-cache && apk add \
+  unzip
 
 COPY ./bin/. /usr/local/bin/
-COPY ./config/. /config/
-COPY ./data/. /data/
+COPY ./data/. /usr/local/share/template-files/data/
+COPY ./config/. /usr/local/share/template-files/config/
 
 RUN chmod -Rf 755 /usr/local/bin/get-deno.sh && \
   DEBUG="true" /usr/local/bin/get-deno.sh && \
-  rm -Rf /usr/local/bin/get-deno.sh
+  rm -Rf /usr/local/bin/get-deno.sh /bin/.gitkeep /config /data /var/cache/apk/*
 
 FROM scratch
 
@@ -36,16 +48,23 @@ LABEL org.label-schema.name="deno" \
   maintainer="CasjaysDev <docker-admin@casjaysdev.com>"
 
 ENV SHELL="/bin/bash" \
+  ENV="$HOME/.bashrc" \
   TERM="xterm-256color" \
-  HOSTNAME="casjaysdev-deno" \
-  TZ="${TZ:-America/New_York}"
-
-WORKDIR /data
-VOLUME ["/data"]
-EXPOSE 1-65535
+  HOSTNAME="casjaysdev-alpine" \
+  TZ="${TZ:-America/New_York}" \
+  TIMEZONE="$TIMEZONE" \
+  PHP_SERVER="none" \
+  PORT=""
 
 COPY --from=build /. /
 
-HEALTHCHECK --interval=15s --timeout=3s CMD [ "/usr/local/bin/entrypoint-deno.sh", "healthcheck" ]
+WORKDIR /data/htdocs/www
 
-ENTRYPOINT [ "/usr/local/bin/entrypoint-deno.sh" ]
+VOLUME [ "/config","/data" ]
+
+EXPOSE $PORTS
+
+ENTRYPOINT [ "tini", "-p", "SIGTERM", "--" ]
+CMD [ "/usr/local/bin/entrypoint-deno.sh" ]
+HEALTHCHECK --start-period=1m --interval=2m --timeout=3s CMD [ "/usr/local/bin/entrypoint-deno.sh", "healthcheck" ]
+
