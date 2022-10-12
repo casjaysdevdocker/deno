@@ -16,13 +16,14 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set bash options
 [ -n "$DEBUG" ] && set -x
-set -o pipefail
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+DENO_VERSION="${DENO_VERSION:-v1.26.1}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # AMD64 binary
 if [ "$(uname -m)" = "amd64" ] || [ "$(uname -m)" = "x86_64" ]; then
   ARCH=x86_64
-  echo "grabbing ${VERSION}/deno-x86_64-unknown-linux-gnu.zip from denoland for $ARCH"
-  curl -Lsf "https://github.com/denoland/deno/releases/download/${VERSION}/deno-x86_64-unknown-linux-gnu.zip" -o "/tmp/deno-$ARCH.zip" &&
+  echo "grabbing ${DENO_VERSION}/deno-x86_64-unknown-linux-gnu.zip from denoland for $ARCH"
+  curl -Lsf "https://github.com/denoland/deno/releases/download/${DENO_VERSION}/deno-x86_64-unknown-linux-gnu.zip" -o "/tmp/deno-$ARCH.zip" &&
     if [ -f "/tmp/deno-$ARCH.zip" ]; then
       mkdir -p "/tmp/deno-$ARCH" && cd "/tmp/deno-$ARCH" || exit 10
       unzip "/tmp/deno-$ARCH.zip"
@@ -31,14 +32,15 @@ if [ "$(uname -m)" = "amd64" ] || [ "$(uname -m)" = "x86_64" ]; then
       rm -Rf "/tmp/deno-$ARCH.zip" "/tmp/deno-$ARCH"
     fi
 else
-  true
+  echo "Failed to download deno"
+  exit 2
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ARM64 binary
 if [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
   ARCH=arm64
-  echo "grabbing ${VERSION}/deno-linux-arm64.zip from LukeChannings for $ARCH"
-  curl -Lsf "https://github.com/LukeChannings/deno-arm64/releases/download/${VERSION}/deno-linux-arm64.zip" -o "/tmp/deno-$ARCH.zip" &&
+  echo "grabbing ${DENO_VERSION}/deno-linux-arm64.zip from LukeChannings for $ARCH"
+  curl -Lsf "https://github.com/LukeChannings/deno-arm64/releases/download/${DENO_VERSION}/deno-linux-arm64.zip" -o "/tmp/deno-$ARCH.zip" &&
     if [ -f "/tmp/deno-$ARCH.zip" ]; then
       mkdir -p "/tmp/deno-$ARCH" && cd "/tmp/deno-$ARCH" || exit 10
       unzip "/tmp/deno-$ARCH.zip"
@@ -47,5 +49,7 @@ if [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
       rm -Rf "/tmp/deno-$ARCH.zip" "/tmp/deno-$ARCH"
     fi
 else
-  true
+  exit 2
 fi
+[ -f "$(which "deno")" ] && deno upgrade && exit 0 || exit 10
+

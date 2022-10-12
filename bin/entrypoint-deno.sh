@@ -73,7 +73,7 @@ deno)
   if [ "$FRESH_INSTALL" = "true" ]; then
     deno --allow-all task start
   else
-    deno run --allow-all "${@:-/data/sample.ts}"
+    deno run --watch --allow-all "${@:-/data/sample.ts}"
   fi
   ;;
 esac

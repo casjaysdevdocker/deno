@@ -1,6 +1,6 @@
 FROM casjaysdevdocker/debian:latest as build
 
-ENV VERSION="v1.23.3" \
+ENV DENO_VERSION="v1.26.1" \
   DEBIAN_FRONTEND=noninteractive
 
 RUN apt update && \
