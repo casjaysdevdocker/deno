@@ -19,10 +19,10 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __get_file() {
   local exitStatus=""
-  if curl -q -LSf "$URL" -o "$FILE"; then
+  if curl -q -LSf "$1" -o "$FILE"; then
+    LATEST_URL=""
     exitStatus=0
-  elif curl -q -LSf "$LATEST_URL" -o "$FILE"; then
-    URL="$LATEST_URL"
+  elif curl -q -LSf "$1" -o "$FILE"; then
     exitStatus=0
   else
     exitStatus=1
@@ -37,14 +37,14 @@ if [ "$(uname -m)" = "amd64" ] || [ "$(uname -m)" = "x86_64" ]; then
   BIN_FILE="/usr/bin/deno"
   FILE="/tmp/deno-$ARCH.zip"
   TMP_DIR="/tmp/deno-$ARCH/deno"
-  DENO_VERSION="${DENO_VERSION:-latest}"
+  message="grabbing $DENO_VERSION from denoland for $ARCH"
   URL="https://github.com/denoland/deno/releases/download/$DENO_VERSION/deno-$ARCH-unknown-linux-gnu.zip"
   LATEST_URL="https://github.com/denoland/deno/releases/download/latest/deno-$ARCH-unknown-linux-gnu.zip"
 elif [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
   ARCH="arm64"
   BIN_FILE="/usr/bin/deno"
   FILE="/tmp/deno-$ARCH.zip"
-  DENO_VERSION="${DENO_VERSION:-latest}"
+  message="grabbing $DENO_VERSION from LukeChannings for $ARCH"
   URL="https://github.com/LukeChannings/deno-arm64/releases/download/$DENO_VERSION/deno-linux-$ARCH.zip"
   LATEST_URL="https://github.com/LukeChannings/deno-arm64/releases/latest/download/deno-linux-$ARCH.zip"
 else
@@ -52,33 +52,15 @@ else
   exit 1
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# AMD64 binary
-if [ "$ARCH" = "x86_64" ]; then
-  echo "grabbing ${DENO_VERSION} from denoland for $ARCH"
-  __get_file && if [ -f "$FILE" ]; then
-    mkdir -p "$TMP_DIR" && cd "$TMP_DIR" || exit 10
-    unzip "$FILE"
-    mv -fv "$TMP_DIR" "$BIN_FILE"
-    chmod -Rf 755 "$BIN_FILE"
-    rm -Rf "$FILE" "$TMP_DIR"
-  fi
+if { __get_file "$URL" || __get_file "$LATEST_URL"; } && [ -f "$FILE" ]; then
+  echo "$message"
+  mkdir -p "$TMP_DIR" && cd "$TMP_DIR" || exit 10
+  unzip "$FILE"
+  mv -fv "$TMP_DIR" "$BIN_FILE"
+  chmod -Rf 755 "$BIN_FILE"
+  rm -Rf "$FILE" "$TMP_DIR"
 else
-  echo "Failed to download deno from $URL"
-  exit 2
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# ARM64 binary
-if [ "$ARCH" = "arm64" ]; then
-  echo "grabbing ${DENO_VERSION} from LukeChannings for $ARCH"
-  __get_file && if [ -f "$FILE" ]; then
-    mkdir -p "$TMP_DIR" && cd "$TMP_DIR" || exit 10
-    unzip "$FILE"
-    mv -fv "$TMP_DIR" "$BIN_FILE"
-    chmod -Rf 755 "$BIN_FILE"
-    rm -Rf "$FILE" "$TMP_DIR"
-  fi
-else
-  echo "Failed to download deno from $URL"
+  echo "Failed to download deno from ${LATEST_URL:-$URL}"
   exit 2
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
