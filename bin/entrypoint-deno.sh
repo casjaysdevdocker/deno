@@ -16,7 +16,6 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set bash options
 [ -n "$DEBUG" ] && set -x
-set -o pipefail
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 APPNAME="$(basename "$0" 2>/dev/null)"
 VERSION="202207101005-git"
@@ -46,7 +45,12 @@ if [[ -n "${HOSTNAME}" ]]; then
   echo "127.0.0.1 $HOSTNAME localhost" >/etc/hosts
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[[ -f "/app/.env" ]] && source /app/.env
+[[ -f "/config/.env" ]] && source /config/.env
+
+if [ -z "$1" ] && [ -z "$(ls -A "" 2>/dev/null)" ]; then
+  FRESH_INSTALL="true"
+  deno run -A -r https://fresh.deno "/data/"
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 case "$1" in
 --help)
@@ -60,8 +64,17 @@ sh | bash | shell | /bin/sh | /bin/bash)
   shift 1
   __exec_bash "$@"
   ;;
+
+deno)
+  shift 1
+   deno run --allow-net "${@:-/data/sample.ts}"
+  ;;
 *)
-  deno run --allow-net "${@:-/data/sample.ts}"
+  if [ "$FRESH_INSTALL" = "true" ]; then
+    deno --allow-all task start
+  else
+    deno run --allow-all "${@:-/data/sample.ts}"
+  fi
   ;;
 esac
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
