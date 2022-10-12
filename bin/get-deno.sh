@@ -44,13 +44,13 @@ echo "$message"
 if curl -q -LSsf -o "$FILE" "$URL"; then
   mkdir -p "$TMP_DIR" && cd "$TMP_DIR" || exit 10
   unzip "$FILE"
-  mv -fv "$TMP_DIR" "$BIN_FILE"
+  mv -fv "$TMP_DIR/deno" "$BIN_FILE"
   chmod -Rf 755 "$BIN_FILE"
 else
   echo "$err_mess"
   exit 2
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-rm -Rf "$FILE" "$TMP_DIR"
+#rm -Rf "$FILE" "$TMP_DIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 [ -f "$(which "deno")" ] && deno upgrade && exit 0 || exit 10
