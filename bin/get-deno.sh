@@ -17,12 +17,6 @@
 # Set bash options
 [ -n "$DEBUG" ] && set -x
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DENO_VERSION="${DENO_VERSION:-v1.26.1}"
-DENO_URL_x64_LATEST="https://github.com/denoland/deno/releases/download/latest/deno-x86_64-unknown-linux-gnu.zip"
-DENO_URL_x64_VERSION="https://github.com/denoland/deno/releases/download/$DENO_VERSION/deno-x86_64-unknown-linux-gnu.zip"
-DENO_URL_ARM64_LATEST="https://github.com/LukeChannings/deno-arm64/releases/latest/download/deno-linux-arm64.zip"
-DENO_URL_ARM64_VERSION="https://github.com/LukeChannings/deno-arm64/releases/download/$DENO_VERSION/deno-linux-arm64.zip"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __get_file() {
   local exitStatus=""
   if curl -q -LSf -o "$FILE" "$URL"; then
@@ -36,17 +30,28 @@ __get_file() {
   return ${exitStatus}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# AMD64 binary
+DENO_VERSION="${DENO_VERSION:-v1.26.1}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [ "$(uname -m)" = "amd64" ] || [ "$(uname -m)" = "x86_64" ]; then
-  ARCH=x86_64
+  ARCH="x86_64"
   FILE="/tmp/deno-$ARCH.zip"
-  URL="$DENO_URL_x64_VERSION"
-  LATEST_URL="$DENO_URL_x64_LATEST"
-  if [ "$DENO_VERSION" = "latest" ] || [ -z "$DENO_VERSION" ]; then
-    DENO_VERSION="latest"
-    URL="$DENO_URL_x64_LATEST"
-  fi
-  echo "grabbing ${DENO_VERSION}/deno-x86_64-unknown-linux-gnu.zip from denoland for $ARCH"
+  DENO_VERSION="${DENO_VERSION:-latest}"
+  URL="https://github.com/denoland/deno/releases/download/$DENO_VERSION/deno-$ARCH-unknown-linux-gnu.zip"
+  LATEST_URL="https://github.com/denoland/deno/releases/download/latest/deno-$ARCH-unknown-linux-gnu.zip"
+elif [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
+  ARCH="arm64"
+  FILE="/tmp/deno-$ARCH.zip"
+  DENO_VERSION="${DENO_VERSION:-latest}"
+  URL="https://github.com/LukeChannings/deno-arm64/releases/download/$DENO_VERSION/deno-linux-$ARCH.zip"
+  LATEST_URL="https://github.com/LukeChannings/deno-arm64/releases/latest/download/deno-linux-$ARCH.zip"
+else
+  echo "Unsupported architecture"
+  exit 1
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# AMD64 binary
+if [ "$ARCH" = "x86_64" ]; then
+  echo "grabbing ${DENO_VERSION}/deno-$ARCH-unknown-linux-gnu.zip from denoland for $ARCH"
   __get_file && if [ -f "/tmp/deno-$ARCH.zip" ]; then
     mkdir -p "/tmp/deno-$ARCH" && cd "/tmp/deno-$ARCH" || exit 10
     unzip "/tmp/deno-$ARCH.zip"
@@ -60,16 +65,8 @@ else
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ARM64 binary
-if [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
-  ARCH=arm64
-  FILE="/tmp/deno-$ARCH.zip"
-  URL="$DENO_URL_ARM64_VERSION"
-  LATEST_URL="$DENO_URL_ARM64_LATEST"
-  if [ "$DENO_VERSION" = "latest" ] || [ -z "$DENO_VERSION" ]; then
-    DENO_VERSION="latest"
-    URL="$DENO_URL_ARM64_LATEST"
-  fi
-  echo "grabbing ${DENO_VERSION}/deno-linux-arm64.zip from LukeChannings for $ARCH"
+if [ "$ARCH" = "arm64" ]; then
+  echo "grabbing ${DENO_VERSION}/deno-$ARCH-unknown-linux-gnu.zip from denoland for $ARCH"
   __get_file && if [ -f "/tmp/deno-$ARCH.zip" ]; then
     mkdir -p "/tmp/deno-$ARCH" && cd "/tmp/deno-$ARCH" || exit 10
     unzip "/tmp/deno-$ARCH.zip"
@@ -81,4 +78,5 @@ else
   echo "Failed to download deno from $URL"
   exit 2
 fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 [ -f "$(which "deno")" ] && deno upgrade && exit 0 || exit 10
