@@ -24,7 +24,7 @@ if [ "$(uname -m)" = "amd64" ] || [ "$(uname -m)" = "x86_64" ]; then
   URL="https://github.com/denoland/deno/releases/download/$DENO_VERSION/deno-$ARCH-unknown-linux-gnu.zip"
   BIN_FILE="/usr/bin/deno"
   TMP_DIR="/tmp/deno-$ARCH"
-  FILE="/tmp/deno-$ARCH.zip"
+  TMP_FILE="/tmp/deno-$ARCH.zip"
   message="grabbing $DENO_VERSION from denoland for $ARCH"
   err_mess="Failed to download deno from $URL"
 elif [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
@@ -32,7 +32,7 @@ elif [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
   URL="https://github.com/LukeChannings/deno-arm64/releases/download/$DENO_VERSION/deno-linux-$ARCH.zip"
   BIN_FILE="/usr/bin/deno"
   TMP_DIR="/tmp/deno-$ARCH"
-  FILE="/tmp/deno-$ARCH.zip"
+  TMP_FILE="/tmp/deno-$ARCH.zip"
   message="grabbing $DENO_VERSION from LukeChannings for $ARCH"
   err_mess="Failed to download deno from $URL"
 else
@@ -41,9 +41,9 @@ else
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 echo "$message"
-if curl -q -Lf -o "$FILE" "$URL"; then
+if curl -q -Lf -o "$TMP_FILE" "$URL" && [ -f "$TMP_FILE" ]; then
   mkdir -p "$TMP_DIR" && cd "$TMP_DIR" || exit 10
-  unzip "$FILE"
+  unzip "$TMP_FILE"
   mv -fv "$TMP_DIR/deno" "$BIN_FILE"
   chmod -Rf 755 "$BIN_FILE"
 else
@@ -51,6 +51,6 @@ else
   exit 2
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#rm -Rf "$FILE" "$TMP_DIR"
+rm -Rf "$TMP_FILE" "$TMP_DIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[ -f "$(which "deno")" ] && deno upgrade && exit 0 || exit 10
+[ -f "$(which "deno" 2>/dev/null)" ] && deno upgrade && exit 0 || exit 10
