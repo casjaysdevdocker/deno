@@ -5,6 +5,8 @@ ARG alpine_version="v3.16" \
   TIMEZONE="America/New_York" \
   IMAGE_NAME="alpine" \
   LICENSE="MIT" \
+  DEBUG="" \ 
+  DENO_VERSION="v1.26.1" \
   PORTS="1-65535"
 
 ENV TZ="$TIMEZONE" \
@@ -12,7 +14,8 @@ ENV TZ="$TIMEZONE" \
   ENV="$HOME/.bashrc" \
   TERM="xterm-256color" \
   HOSTNAME="${HOSTNAME:-casjaysdev-$IMAGE_NAME}" \
-  DENO_VERSION="v1.26.1"
+  DEBUG="${DEBUG}" \
+  DENO_VERSION="${DENO_VERSION}"
 
 RUN set -ex; \
   rm -Rf "/etc/apk/repositories"; \
@@ -27,7 +30,7 @@ COPY ./data/. /usr/local/share/template-files/data/
 COPY ./config/. /usr/local/share/template-files/config/
 
 RUN chmod -Rf 755 /usr/local/bin/get-deno.sh && \
-  DEBUG="true" /usr/local/bin/get-deno.sh && \
+  /usr/local/bin/get-deno.sh && \
   rm -Rf /usr/local/bin/get-deno.sh /bin/.gitkeep /config /data /var/cache/apk/*
 
 FROM scratch
@@ -67,4 +70,3 @@ EXPOSE $PORTS
 ENTRYPOINT [ "tini", "-p", "SIGTERM", "--" ]
 CMD [ "/usr/local/bin/entrypoint-deno.sh" ]
 HEALTHCHECK --start-period=1m --interval=2m --timeout=3s CMD [ "/usr/local/bin/entrypoint-deno.sh", "healthcheck" ]
-

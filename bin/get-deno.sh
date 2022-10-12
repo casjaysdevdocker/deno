@@ -24,15 +24,16 @@ DENO_URL_ARM64_LATEST="https://github.com/LukeChannings/deno-arm64/releases/late
 DENO_URL_ARM64_VERSION="https://github.com/LukeChannings/deno-arm64/releases/download/$DENO_VERSION/deno-linux-arm64.zip"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __get_file() {
-  if curl -q -LSsf -o "$FILE" "$URL" || false; then
-    return 0
-  elif curl -q -LSsf -o "$FILE" "$LATEST_URL" || false; then
+  local exitStatus=""
+  if curl -q -LSf -o "$FILE" "$URL"; then
+    exitStatus=0
+  elif curl -q -LSf -o "$FILE" "$LATEST_URL"; then
     URL="$LATEST_URL"
-    return 0
+    exitStatus=0
   else
-
-    return 1
+    exitStatus=1
   fi
+  return ${exitStatus}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # AMD64 binary
@@ -40,6 +41,7 @@ if [ "$(uname -m)" = "amd64" ] || [ "$(uname -m)" = "x86_64" ]; then
   ARCH=x86_64
   FILE="/tmp/deno-$ARCH.zip"
   URL="$DENO_URL_x64_VERSION"
+  LATEST_URL="$DENO_URL_x64_LATEST"
   if [ "$DENO_VERSION" = "latest" ] || [ -z "$DENO_VERSION" ]; then
     DENO_VERSION="latest"
     URL="$DENO_URL_x64_LATEST"
@@ -62,6 +64,7 @@ if [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
   ARCH=arm64
   FILE="/tmp/deno-$ARCH.zip"
   URL="$DENO_URL_ARM64_VERSION"
+  LATEST_URL="$DENO_URL_ARM64_LATEST"
   if [ "$DENO_VERSION" = "latest" ] || [ -z "$DENO_VERSION" ]; then
     DENO_VERSION="latest"
     URL="$DENO_URL_ARM64_LATEST"
