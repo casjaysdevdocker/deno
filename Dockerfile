@@ -1,4 +1,5 @@
-FROM casjaysdevdocker/debian:latest as build
+#FROM casjaysdevdocker/debian:latest as build
+FROM casjaysdevdocker/alpine:latest AS build
 
 ENV DENO_VERSION="v1.26.1" \
   DEBIAN_FRONTEND=noninteractive
@@ -14,7 +15,7 @@ COPY ./config/. /config/
 COPY ./data/. /data/
 
 RUN chmod -Rf 755 /usr/local/bin/get-deno.sh && \
-  /usr/local/bin/get-deno.sh && \
+  DEBUG="true" /usr/local/bin/get-deno.sh && \
   rm -Rf /usr/local/bin/get-deno.sh
 
 FROM scratch
