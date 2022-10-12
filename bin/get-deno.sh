@@ -41,7 +41,7 @@ else
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 echo "$message"
-if curl -q -LSsf -o "$FILE" "$URL"; then
+if curl -q -Lf-o "$FILE" "$URL"; then
   mkdir -p "$TMP_DIR" && cd "$TMP_DIR" || exit 10
   unzip "$FILE"
   mv -fv "$TMP_DIR/deno" "$BIN_FILE"
