@@ -39,9 +39,9 @@ ENV SHELL="/bin/bash" \
   HOSTNAME="casjaysdev-deno" \
   TZ="${TZ:-America/New_York}"
 
-WORKDIR /app
-VOLUME ["/app"]
-EXPOSE 1993
+WORKDIR /data
+VOLUME ["/data"]
+EXPOSE 1-65535
 
 COPY --from=build /. /
 
