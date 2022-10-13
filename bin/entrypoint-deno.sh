@@ -122,7 +122,7 @@ fi
 mkdir -p "/data/htdocs/www" && cd "/data/htdocs/www" || exit 10
 if [ -z "$1" ] && [ -z "$(ls -A "/data/htdocs/www"/* 2>/dev/null)" ]; then
   cp -Rf "/usr/local/share/template-files/data/htdocs/www/." "/data/htdocs/www/"
-  RUN_SCRIPT="src/index.ts"
+  START_SCRIPT="src/index.ts"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Additional commands
@@ -155,8 +155,8 @@ deno)
 
 *) # Execute primary command
   if [ $# -eq 0 ]; then
-    if [ -n "$RUN_SCRIPT" ]; then
-      START_SCRIPT="$RUN_SCRIPT"
+    if [ -n "$START_SCRIPT" ]; then
+      RUN_SCRIPT="$START_SCRIPT"
     elif [ -f "src/index.ts" ]; then
       RUN_SCRIPT="index.ts"
     elif [ -f "index.ts" ]; then
@@ -167,7 +167,7 @@ deno)
       RUN_SCRIPT="server.ts"
     fi
     echo "Attempting to start deno"
-    deno --allow-all task start || deno run --watch --allow-all "${@:-}" || { echo "deno failed to start" && return 1; }
+    deno task start || deno run --watch --allow-all ${@:-$RUN_SCRIPT} || { echo "deno failed to start" && return 1; }
     exit ${exitCode:-$?}
   else
     __exec_command "$@"
