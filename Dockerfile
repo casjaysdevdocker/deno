@@ -4,7 +4,7 @@ ARG TIMEZONE="America/New_York" \
   IMAGE_NAME="deno" \
   LICENSE="MIT" \
   PORTS="1-65535" \
-  DEBUG="" \ 
+  DEBUG="" \
   DENO_VERSION="v1.26.1"
 
 ENV TZ="$TIMEZONE" \
@@ -19,7 +19,7 @@ RUN set -ex; \
   mkdir -p "/usr/local/share/template-files/data/htdocs/www" && \
   apt-get update && apt-get upgrade -yy && apt-get install -yy \
   unzip && \
-  git clone -q "https://github.com/casjay-templates/bunjs" "/usr/local/share/template-files/data/htdocs/www"
+  git clone -q "https://github.com/casjay-templates/denojs" "/usr/local/share/template-files/data/htdocs/www"
 
 COPY ./bin/. /usr/local/bin/
 COPY ./data/. /usr/local/share/template-files/data/
