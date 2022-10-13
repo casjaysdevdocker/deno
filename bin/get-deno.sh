@@ -41,9 +41,13 @@ fi
 echo "grabbing deno $DENO_VERSION from $CHANNEL for $ARCH"
 if curl -q -LSsf -o "$TMP_FILE" "$URL" && [ -f "$TMP_FILE" ]; then
   mkdir -p "$TMP_DIR" && cd "$TMP_DIR" || exit 10
-  unzip "$TMP_FILE"
-  cp -Rf "$TMP_DIR/deno" "$BIN_FILE"
-  chmod -Rf 755 "$BIN_FILE"
+  unzip -q "$TMP_FILE"
+  if [ -f "$TMP_DIR/deno" ]; then
+    cp -Rf "$TMP_DIR/deno" "$BIN_FILE" && chmod -Rf 755 "$BIN_FILE" || exit 10
+  else
+    echo "Failed to extract deno from $TMP_FILE"
+    exit 10
+  fi
 else
   echo "Failed to download deno from $URL"
   exitCode=2
