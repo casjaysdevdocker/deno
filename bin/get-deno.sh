@@ -43,6 +43,7 @@ if curl -q -LSsf -o "$TMP_FILE" "$URL" && [ -f "$TMP_FILE" ]; then
   mkdir -p "$TMP_DIR" && cd "$TMP_DIR" || exit 10
   unzip "$TMP_FILE"
   mv -fv "$TMP_DIR/deno" "$BIN_FILE"
+  ls -lA "$BIN_FILE" "$TMP_DIR/deno"
   chmod -Rf 755 "$BIN_FILE"
 else
   echo "Failed to download deno from $URL"
