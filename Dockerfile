@@ -1,22 +1,21 @@
 FROM casjaysdevdocker/debian:latest as build
 
 ARG TIMEZONE="America/New_York" \
-  IMAGE_NAME="alpine" \
+  IMAGE_NAME="deno" \
   LICENSE="MIT" \
+  PORTS="1-65535" \
   DEBUG="" \ 
-  DENO_VERSION="v1.26.1" \
-  PORTS="1-65535"
+  DENO_VERSION="v1.26.1"
 
 ENV TZ="$TIMEZONE" \
-  DEBUG="$DEBUG" \
   SHELL="/bin/bash" \
-  ENV="$HOME/.bashrc" \
   TERM="xterm-256color" \
   HOSTNAME="${HOSTNAME:-casjaysdev-$IMAGE_NAME}" \
-  DENO_VERSION="$DENO_VERSION"
+  DENO_VERSION="$DENO_VERSION" \
+  DEBUG="$DEBUG"
+
 
 RUN set -ex; \
-  rm -Rf "/etc/apk/repositories"; \
   mkdir -p "/usr/local/share/template-files/data/htdocs/www" && \
   apt-get update && apt-get upgrade -yy && apt-get install -yy \
   unzip && \
@@ -31,34 +30,37 @@ RUN chmod -Rf 755 /usr/local/bin/get-deno.sh && \
   rm -Rf /usr/local/bin/get-deno.sh /tmp/* /bin/.gitkeep /config /data /var/lib/apt/lists/* /usr/local/share/template-files/data/htdocs/www/.git
 
 FROM scratch
+ARG BUILD_DATE="2022-10-12" \
+  BUILD_VERSION="latest"
 
-ARG BUILD_DATE="$(date +'%Y-%m-%d %H:%M')"
-
-LABEL org.label-schema.name="deno" \
-  org.label-schema.description="containerized version of deno" \
-  org.label-schema.url="https://github.com/casjaysdevdocker/deno/deno" \
-  org.label-schema.vcs-url="https://github.com/casjaysdevdocker/deno/deno" \
-  org.label-schema.build-date=$BUILD_DATE \
-  org.label-schema.version=$BUILD_DATE \
-  org.label-schema.vcs-ref=$BUILD_DATE \
-  org.label-schema.license="WTFPL" \
-  org.label-schema.vcs-type="Git" \
-  org.label-schema.schema-version="latest" \
-  org.label-schema.vendor="CasjaysDev" \
-  maintainer="CasjaysDev <docker-admin@casjaysdev.com>"
+LABEL maintainer="CasjaysDev <docker-admin@casjaysdev.com>" \
+  org.opencontainers.image.vcs-type="Git" \
+  org.opencontainers.image.name="deno" \
+  org.opencontainers.image.base.name="deno" \
+  org.opencontainers.image.license="$LICENSE" \
+  org.opencontainers.image.vcs-ref="$BUILD_VERSION" \
+  org.opencontainers.image.build-date="$BUILD_DATE" \
+  org.opencontainers.image.version="$BUILD_VERSION" \
+  org.opencontainers.image.schema-version="$BUILD_VERSION" \
+  org.opencontainers.image.url="https://hub.docker.com/r/casjaysdevdocker/deno" \
+  org.opencontainers.image.vcs-url="https://github.com/casjaysdevdocker/deno" \
+  org.opencontainers.image.url.source="https://github.com/casjaysdevdocker/deno" \
+  org.opencontainers.image.documentation="https://hub.docker.com/r/casjaysdevdocker/deno" \
+  org.opencontainers.image.vendor="CasjaysDev" \
+  org.opencontainers.image.authors="CasjaysDev" \
+  org.opencontainers.image.description="Containerized version of deno"
 
 ENV SHELL="/bin/bash" \
-  ENV="$HOME/.bashrc" \
   TERM="xterm-256color" \
-  HOSTNAME="casjaysdev-alpine" \
+  HOSTNAME="casjaysdev-deno" \
   TZ="${TZ:-America/New_York}" \
-  TIMEZONE="$TIMEZONE" \
+  TIMEZONE="$$TIMEZONE" \
   PHP_SERVER="none" \
   PORT=""
 
 COPY --from=build /. /
 
-WORKDIR /data/htdocs/www
+WORKDIR /root
 
 VOLUME [ "/config","/data" ]
 
@@ -67,3 +69,4 @@ EXPOSE $PORTS
 ENTRYPOINT [ "tini", "-p", "SIGTERM", "--" ]
 CMD [ "/usr/local/bin/entrypoint-deno.sh" ]
 HEALTHCHECK --start-period=1m --interval=2m --timeout=3s CMD [ "/usr/local/bin/entrypoint-deno.sh", "healthcheck" ]
+
