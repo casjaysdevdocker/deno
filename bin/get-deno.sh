@@ -21,36 +21,35 @@ DENO_VERSION="${DENO_VERSION:-v1.26.1}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [ "$(uname -m)" = "amd64" ] || [ "$(uname -m)" = "x86_64" ]; then
   ARCH="x86_64"
+  CHANNEL="denoland"
   URL="https://github.com/denoland/deno/releases/download/$DENO_VERSION/deno-$ARCH-unknown-linux-gnu.zip"
   BIN_FILE="/usr/bin/deno"
   TMP_DIR="/tmp/deno-$ARCH"
   TMP_FILE="/tmp/deno-$ARCH.zip"
-  message="grabbing $DENO_VERSION from denoland for $ARCH"
-  err_mess="Failed to download deno from $URL"
 elif [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
   ARCH="arm64"
+  CHANNEL="LukeChannings"
   URL="https://github.com/LukeChannings/deno-arm64/releases/download/$DENO_VERSION/deno-linux-$ARCH.zip"
   BIN_FILE="/usr/bin/deno"
   TMP_DIR="/tmp/deno-$ARCH"
   TMP_FILE="/tmp/deno-$ARCH.zip"
-  message="grabbing $DENO_VERSION from LukeChannings for $ARCH"
-  err_mess="Failed to download deno from $URL"
 else
   echo "Unsupported architecture"
   exit 1
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-echo "$message"
+echo "grabbing deno $DENO_VERSION from $CHANNEL for $ARCH"
 if curl -q -LSsf -o "$TMP_FILE" "$URL" && [ -f "$TMP_FILE" ]; then
   mkdir -p "$TMP_DIR" && cd "$TMP_DIR" || exit 10
   unzip "$TMP_FILE"
   mv -fv "$TMP_DIR/deno" "$BIN_FILE"
   chmod -Rf 755 "$BIN_FILE"
 else
-  echo "$err_mess"
-  exit 2
+  echo "Failed to download deno from $URL"
+  exitCode=2
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 rm -Rf "$TMP_FILE" "$TMP_DIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[ -f "$(which "deno" 2>/dev/null)" ] && deno upgrade && exit 0 || exit 10
+[ -f "$BIN_FILE" ] && $BIN_FILE upgrade && exit 0 || exit 10
+exit ${exitCode:-0}

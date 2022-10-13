@@ -14,8 +14,8 @@ ENV TZ="$TIMEZONE" \
   ENV="$HOME/.bashrc" \
   TERM="xterm-256color" \
   HOSTNAME="${HOSTNAME:-casjaysdev-$IMAGE_NAME}" \
-  DEBUG="${DEBUG}" \
-  DENO_VERSION="${DENO_VERSION}"
+  DEBUG="$DEBUG" \
+  DENO_VERSION="$DENO_VERSION"
 
 RUN set -ex; \
   rm -Rf "/etc/apk/repositories"; \
@@ -31,7 +31,7 @@ COPY ./config/. /usr/local/share/template-files/config/
 
 RUN chmod -Rf 755 /usr/local/bin/get-deno.sh && \
   /usr/local/bin/get-deno.sh && \
-  rm -Rf /usr/local/bin/get-deno.sh /bin/.gitkeep /config /data /var/cache/apk/*
+  rm -Rf /usr/local/bin/get-deno.sh /tmp/* /bin/.gitkeep /config /data /var/cache/apk/*
 
 FROM scratch
 
