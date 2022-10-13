@@ -166,8 +166,8 @@ deno)
     elif [ -f "server.ts" ]; then
       RUN_SCRIPT="server.ts"
     fi
-    deno --allow-all task start ||
-      deno run --watch --allow-all "${@:-}"
+    echo "Attempting to start deno"
+    deno --allow-all task start || deno run --watch --allow-all "${@:-}" || { echo "deno failed to start" && return 1; }
     exit ${exitCode:-$?}
   else
     __exec_command "$@"
