@@ -60,7 +60,7 @@ ENV SHELL="/bin/bash" \
 
 COPY --from=build /. /
 
-WORKDIR /root
+WORKDIR /data/htdocs/www
 
 VOLUME [ "/config","/data" ]
 
