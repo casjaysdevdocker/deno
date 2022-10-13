@@ -1,5 +1,4 @@
-#FROM casjaysdevdocker/debian:latest as build
-FROM casjaysdevdocker/alpine:latest AS build
+FROM casjaysdevdocker/debian:latest as build
 
 ARG alpine_version="v3.16" \
   TIMEZONE="America/New_York" \
@@ -19,10 +18,7 @@ ENV TZ="$TIMEZONE" \
 
 RUN set -ex; \
   rm -Rf "/etc/apk/repositories"; \
-  echo "http://dl-cdn.alpinelinux.org/alpine/$alpine_version/main" >> "/etc/apk/repositories"; \
-  echo "http://dl-cdn.alpinelinux.org/alpine/$alpine_version/community" >> "/etc/apk/repositories"; \
-  if [ "$alpine_version" = "edge" ]; then echo "http://dl-cdn.alpinelinux.org/alpine/$alpine_version/testing" >> "/etc/apk/repositories" ; fi ; \
-  apk update --update-cache && apk add \
+  apt update && apt upgrade -yy && apt install -yy \
   unzip
 
 COPY ./bin/. /usr/local/bin/
