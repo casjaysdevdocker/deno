@@ -1,7 +1,6 @@
 FROM casjaysdevdocker/debian:latest as build
 
-ARG alpine_version="v3.16" \
-  TIMEZONE="America/New_York" \
+ARG TIMEZONE="America/New_York" \
   IMAGE_NAME="alpine" \
   LICENSE="MIT" \
   DEBUG="" \ 
@@ -9,16 +8,16 @@ ARG alpine_version="v3.16" \
   PORTS="1-65535"
 
 ENV TZ="$TIMEZONE" \
+  DEBUG="$DEBUG" \
   SHELL="/bin/bash" \
   ENV="$HOME/.bashrc" \
   TERM="xterm-256color" \
   HOSTNAME="${HOSTNAME:-casjaysdev-$IMAGE_NAME}" \
-  DEBUG="$DEBUG" \
   DENO_VERSION="$DENO_VERSION"
 
 RUN set -ex; \
   rm -Rf "/etc/apk/repositories"; \
-  apt update && apt upgrade -yy && apt install -yy \
+  apt-get update && apt-get upgrade -yy && apt-get install -yy \
   unzip
 
 COPY ./bin/. /usr/local/bin/
@@ -27,7 +26,7 @@ COPY ./config/. /usr/local/share/template-files/config/
 
 RUN chmod -Rf 755 /usr/local/bin/get-deno.sh && \
   /usr/local/bin/get-deno.sh && \
-  rm -Rf /usr/local/bin/get-deno.sh /tmp/* /bin/.gitkeep /config /data /var/cache/apk/*
+  rm -Rf /usr/local/bin/get-deno.sh /tmp/* /bin/.gitkeep /config /data /var/lib/apt/lists/*
 
 FROM scratch
 
