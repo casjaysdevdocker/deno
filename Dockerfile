@@ -17,8 +17,10 @@ ENV TZ="$TIMEZONE" \
 
 RUN set -ex; \
   rm -Rf "/etc/apk/repositories"; \
+  mkdir -p "/usr/local/share/template-files/data/htdocs/www" && \
   apt-get update && apt-get upgrade -yy && apt-get install -yy \
-  unzip
+  unzip && \
+  git clone -q "https://github.com/casjay-templates/bunjs" "/usr/local/share/template-files/data/htdocs/www"
 
 COPY ./bin/. /usr/local/bin/
 COPY ./data/. /usr/local/share/template-files/data/
@@ -26,7 +28,7 @@ COPY ./config/. /usr/local/share/template-files/config/
 
 RUN chmod -Rf 755 /usr/local/bin/get-deno.sh && \
   /usr/local/bin/get-deno.sh && \
-  rm -Rf /usr/local/bin/get-deno.sh /tmp/* /bin/.gitkeep /config /data /var/lib/apt/lists/*
+  rm -Rf /usr/local/bin/get-deno.sh /tmp/* /bin/.gitkeep /config /data /var/lib/apt/lists/* /usr/local/share/template-files/data/htdocs/www/.git
 
 FROM scratch
 
