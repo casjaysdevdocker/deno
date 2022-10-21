@@ -205,7 +205,7 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Copy /config to /etc
 if [ -d "/config" ]; then
-  echo "Copying /config to /etc"
+  [ "$DATA_DIR_INITIALIZED" = "false" ] && echo "Copying /config to /etc"
   for create_conf in /config/*; do
     if [ -n "$create_conf" ]; then
       create_conf_name="$(basename "$create_conf")"

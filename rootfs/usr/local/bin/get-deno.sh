@@ -43,10 +43,11 @@ if curl -q -LSsf -o "$TMP_FILE" "$URL" && [ -f "$TMP_FILE" ]; then
   mkdir -p "$TMP_DIR" && cd "$TMP_DIR" || exit 10
   unzip -q "$TMP_FILE"
   if [ -f "$TMP_DIR/deno" ]; then
-    cp -Rf "$TMP_DIR/deno" "$BIN_FILE" && chmod -Rf 755 "$BIN_FILE" || exit 10
+    cp -Rf "$TMP_DIR/deno" "$BIN_FILE" && chmod -Rf 755 "$BIN_FILE" || exitCode=10
+    [ -f "$BIN_FILE" ] && $BIN_FILE upgrade && exitCode=0 || exitCode=10
   else
     echo "Failed to extract deno from $TMP_FILE"
-    exit 10
+    exitCode=10
   fi
 else
   echo "Failed to download deno from $URL"
@@ -55,5 +56,4 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 rm -Rf "$TMP_FILE" "$TMP_DIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[ -f "$BIN_FILE" ] && $BIN_FILE upgrade && exit 0 || exit 10
 exit ${exitCode:-0}

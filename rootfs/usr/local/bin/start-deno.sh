@@ -81,7 +81,7 @@ CONTAINER_IP_ADDRESS="$(ip a 2>/dev/null | grep 'inet' | grep -v '127.0.0.1' | a
 #SERVICE_PORT=""
 SERVICE_NAME="deno"
 SERVICE_COMMAND="$SERVICE_NAME"
-export exec_message="Starting $SERVICE_NAME on $CONTAINER_IP_ADDRESS:$SERVICE_PORT"
+export exec_message="Starting $SERVICE_NAME on $CONTAINER_IP_ADDRESS"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Pre copy commands
 
@@ -156,6 +156,7 @@ deno)
   if __pgrep "$SERVICE_NAME" && [ ! -f "/tmp/$SERVICE_NAME.pid" ]; then
     echo "$SERVICE_NAME is running"
   else
+    echo "$exec_message" && exec_message=""
     touch "/tmp/$SERVICE_NAME.pid"
     if [ -n "$START_SCRIPT" ]; then
       RUN_SCRIPT="$START_SCRIPT"
@@ -168,7 +169,6 @@ deno)
     elif [ -f "server.ts" ]; then
       RUN_SCRIPT="server.ts"
     fi
-    echo "Attempting to start deno"
     __exec_command "$SERVICE_COMMAND" task start || __exec_command "$SERVICE_COMMAND" run --watch --allow-all "${@:-$RUN_SCRIPT}" ||
       {
         rm -Rf "/tmp/$SERVICE_NAME.pid"

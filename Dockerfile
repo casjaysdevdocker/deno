@@ -36,7 +36,7 @@ RUN set -ex; \
   dpkg-reconfigure --frontend=noninteractive locales && \
   update-locale LANG=en_US.UTF-8 && \
   git clone -q "https://github.com/casjay-templates/denojs" "${DEFAULT_DATA_DIR}/htdocs/www" && \
-  cd "${DEFAULT_DATA_DIR}/htdocs/www" && /usr/local/bin/get-deno.sh
+  /usr/local/bin/get-deno.sh
 
 RUN echo 'Running cleanup' ; \
   apt-get clean ; \
