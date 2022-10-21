@@ -21,14 +21,14 @@ DENO_VERSION="${DENO_VERSION:-v1.26.1}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [ "$(uname -m)" = "amd64" ] || [ "$(uname -m)" = "x86_64" ]; then
   ARCH="x86_64"
-  CHANNEL="denoland"
+  CHANNEL="github.com/denoland/deno"
   URL="https://github.com/denoland/deno/releases/download/$DENO_VERSION/deno-$ARCH-unknown-linux-gnu.zip"
   BIN_FILE="/usr/bin/deno"
   TMP_DIR="/tmp/deno-$ARCH"
   TMP_FILE="/tmp/deno-$ARCH.zip"
 elif [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
   ARCH="arm64"
-  CHANNEL="LukeChannings"
+  CHANNEL="github.com/LukeChannings/deno-arm64"
   URL="https://github.com/LukeChannings/deno-arm64/releases/download/$DENO_VERSION/deno-linux-$ARCH.zip"
   BIN_FILE="/usr/bin/deno"
   TMP_DIR="/tmp/deno-$ARCH"

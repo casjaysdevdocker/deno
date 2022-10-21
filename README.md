@@ -15,10 +15,10 @@ docker run -d \
 --restart always \
 --name deno \
 --hostname casjaysdev-deno \
+--publish-all \
 -e TZ=${TIMEZONE:-America/New_York} \
 -v $PWD/deno/data:/data \
 -v $PWD/deno/config:/config \
--p 80:80 \
 casjaysdev/deno:latest
 ```
 
@@ -37,11 +37,11 @@ services:
       - $HOME/.local/share/docker/storage/deno/data:/data
       - $HOME/.local/share/docker/storage/deno/config:/config
     ports:
-      - 80:80
+      - 1-65535
     restart: always
 ```
 
 ## Authors  
 
-🤖 Jason Hempstead: [Github](https://github.com/Jason Hempstead) [Docker](https://hub.docker.com/Jason Hempstead) 🤖  
+🤖 Jason Hempstead: [Github](<https://github.com/Jason> Hempstead) [Docker](<https://hub.docker.com/Jason> Hempstead) 🤖  
 ⛵ CasjaysDev: [Github](https://github.com/casjaysdev) [Docker](https://hub.docker.com/casjaysdev) ⛵  
