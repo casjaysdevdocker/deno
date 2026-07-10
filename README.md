@@ -19,8 +19,8 @@ dockermgr update deno
 ## Install and run container
   
 ```shell
-dockerHome="/var/lib/srv/$USER/docker/casjaysdevdocker/deno/deno/latest/rootfs"
-mkdir -p "/var/lib/srv/$USER/docker/deno/rootfs"
+dockerHome="/srv/$USER/docker/casjaysdevdocker/deno/deno/latest/rootfs"
+mkdir -p "/srv/$USER/docker/deno/rootfs"
 git clone "https://github.com/dockermgr/deno" "$HOME/.local/share/CasjaysDev/dockermgr/deno"
 cp -Rfva "$HOME/.local/share/CasjaysDev/dockermgr/deno/rootfs/." "$dockerHome/"
 docker run -d \
@@ -47,8 +47,8 @@ services:
       - TZ=America/New_York
       - HOSTNAME=deno
     volumes:
-      - "/var/lib/srv/$USER/docker/casjaysdevdocker/deno/deno/latest/rootfs/data:/data:z"
-      - "/var/lib/srv/$USER/docker/casjaysdevdocker/deno/deno/latest/rootfs/config:/config:z"
+      - "/srv/$USER/docker/casjaysdevdocker/deno/deno/latest/rootfs/data:/data:z"
+      - "/srv/$USER/docker/casjaysdevdocker/deno/deno/latest/rootfs/config:/config:z"
     ports:
       - 80:80
     restart: always
